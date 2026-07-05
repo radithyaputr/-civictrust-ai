@@ -34,12 +34,18 @@ async def lifespan(app: FastAPI):
     if not settings.SECRET_KEY:
         logger.warning("SECRET_KEY tidak dikonfigurasi. Menggunakan key auto-generated.")
 
-    await database.connect()
-    logger.info("Database connected successfully")
+    try:
+        await database.connect()
+        logger.info("Database connected successfully")
+    except Exception as e:
+        logger.warning(f"Database connection failed (non-fatal): {e}")
 
-    from app.utils.llm import get_llm
-    get_llm()
-    logger.info("LLM interface initialized")
+    try:
+        from app.utils.llm import get_llm
+        get_llm()
+        logger.info("LLM interface initialized")
+    except Exception as e:
+        logger.warning(f"LLM initialization failed (non-fatal): {e}")
 
     yield
 
