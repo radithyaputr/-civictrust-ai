@@ -1,0 +1,63 @@
+# =============================================================================
+# CivicTrust AI - Docker Compose
+# =============================================================================
+# Production deployment with separate backend and frontend services.
+# Usage:
+#   docker-compose up -d
+#   docker-compose down
+# =============================================================================
+
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+      target: backend
+    container_name: civictrust-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - DATABASE_URL=sqlite:///./data/civictrust.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: .
+      target: frontend
+    container_name: civictrust-frontend
+    ports:
+      - "8501:8501"
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      - API_BASE_URL=http://backend:8000/api/v1
+    restart: unless-stopped
+
+  # PostgreSQL (optional - uncomment for production)
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: civictrust-db
+  #   environment:
+  #     POSTGRES_DB: civictrust
+  #     POSTGRES_USER: civictrust
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+# volumes:
+#   postgres_data:

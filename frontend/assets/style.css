@@ -1,0 +1,282 @@
+/* 
+ * CivicTrust AI - Design System
+ * Professional SaaS-style design with full accessibility support.
+ */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Root Variables */
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #3b82f6;
+    --secondary: #059669;
+    --accent: #f59e0b;
+    --danger: #ef4444;
+    --background: #ffffff;
+    --surface: #f8fafc;
+    --surface-hover: #f1f5f9;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --border: #e2e8f0;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --transition: all 0.2s ease;
+}
+
+/* Global Styles */
+.stApp {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--background);
+    color: var(--text-primary);
+}
+
+/* Sidebar */
+.css-1d391kg, .css-1wrcr25, section[data-testid="stSidebar"] {
+    background-color: var(--surface);
+    border-right: 1px solid var(--border);
+}
+
+.sidebar-header {
+    padding: 1.5rem 1rem;
+    text-align: center;
+}
+
+.sidebar-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+}
+
+.sidebar-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0.25rem 0 0 0;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+/* Navigation */
+.stRadio > div {
+    gap: 0.25rem;
+}
+
+.stRadio label {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.stRadio label:hover {
+    background-color: var(--surface-hover);
+}
+
+/* Page Headers */
+.page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.page-header p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin: 0.5rem 0 0 0;
+}
+
+/* Chat Messages */
+.stChatMessage {
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
+
+.stChatMessage[data-testid="user-message"] {
+    background-color: var(--primary);
+    color: white;
+}
+
+.stChatMessage[data-testid="assistant-message"] {
+    background-color: var(--surface);
+}
+
+/* Buttons */
+.stButton button {
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    transition: var(--transition);
+    padding: 0.5rem 1.5rem;
+}
+
+.stButton button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stButton button[kind="primary"] {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+}
+
+/* Cards / Metrics */
+div[data-testid="metric-container"] {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+div[data-testid="metric-container"]:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+/* Expanders */
+.streamlit-expanderHeader {
+    font-weight: 600;
+    color: var(--text-primary);
+    background-color: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+}
+
+/* Text Inputs */
+.stTextInput input, .stTextArea textarea {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.stTextInput input:focus, .stTextArea textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Select Boxes */
+.stSelectbox div[data-baseweb="select"] {
+    border-radius: var(--radius-sm);
+}
+
+/* Dividers */
+.stDivider {
+    border-color: var(--border);
+}
+
+/* Alerts */
+.stAlert {
+    border-radius: var(--radius);
+    border: none;
+}
+
+/* Status / Spinner */
+.stStatus {
+    border-radius: var(--radius);
+}
+
+.stSpinner {
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .sidebar-header h1 {
+        font-size: 1.25rem;
+    }
+    
+    div[data-testid="metric-container"] {
+        padding: 1rem;
+    }
+}
+
+/* Dark Mode Overrides */
+.dark-mode {
+    --background: #0f172a;
+    --surface: #1e293b;
+    --surface-hover: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border: #334155;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    :root {
+        --primary: #1a56db;
+        --text-primary: #000000;
+        --text-secondary: #1e293b;
+        --border: #000000;
+    }
+}
+
+/* Screen reader only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Code block styling */
+pre {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+code {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.9em;
+}
+
+/* Progress bar / loading states */
+.stProgress > div > div {
+    background-color: var(--primary);
+}

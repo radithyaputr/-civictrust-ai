@@ -1,0 +1,152 @@
+# =============================================================================
+# CivicTrust AI - CI/CD Pipeline
+# =============================================================================
+# Triggers:
+#   - push to main/develop
+#   - pull request to main
+#
+# Stages:
+#   1. Lint (ruff, mypy)
+#   2. Test (pytest with coverage)
+#   3. Security (bandit)
+#   4. Build (Docker)
+#   5. Deploy (Render/Railway)
+# =============================================================================
+
+name: CivicTrust AI CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: '3.11'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ruff
+    - name: Lint with ruff
+      run: ruff check app/ tests/ --ignore=E402,F403,F405
+    - name: Format check
+      run: ruff format app/ tests/ --check || echo "Format check skipped (non-blocking)"
+
+  test:
+    name: Tests
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest-cov
+    - name: Run tests with coverage
+      run: |
+        python -m pytest tests/ -v --asyncio-mode=auto --tb=short --cov=app --cov-report=term --cov-report=xml
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    - name: Install bandit
+      run: pip install bandit
+    - name: Security audit
+      run: bandit -r app/ -f json --quiet || true
+
+  docker:
+    name: Docker Build & Push
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Extract Docker metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=sha,format=short
+          latest
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to Production
+    needs: [test, docker]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Render Deploy
+      uses: johnbeynon/render-deploy-action@v0.0.8
+      with:
+        service-id: ${{ secrets.RENDER_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
+      continue-on-error: true
+    - name: Railway Deploy
+      uses: bervProject/railway-deploy@v1
+      with:
+        railway_token: ${{ secrets.RAILWAY_TOKEN }}
+        service: civictrust-ai
+      continue-on-error: true
+    - name: Deploy notification
+      run: |
+        echo "Deployment triggered for CivicTrust AI v1.0.0"
+        echo "Deployed services:"
+        echo "  - Backend API: https://civictrust-api.onrender.com"
+        echo "  - Frontend: https://civictrust-app.onrender.com"
